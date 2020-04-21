@@ -10,10 +10,11 @@ import java.util.stream.IntStream;
 public class Lab4 {
 
     private static int n = 12;
-    private static int N = 1024;
+    private static int N = 4096;
     private static int Wgr = 2400;
     private static double rangeMin = 0;
     private static double rangeMax = 100;
+    private static long time = 0;
     public static List<Double> signal = new ArrayList<>();
     private static Random random = new Random();
 
@@ -28,6 +29,11 @@ public class Lab4 {
         createPlot("signal", createSignal());
         createWCoeff();
         createPlot("F", createF());
+        Lab3.signal = Lab4.signal;
+        Lab3.createFI();
+        Lab3.createTable();
+        createPlot("F", Lab3.createFp());
+        System.out.printf("%d ms", (Lab4.time - Lab3.time) / 1_000_000);
     }
 
     static {
@@ -50,6 +56,7 @@ public class Lab4 {
 
 
     public static void createWCoeff() {
+        long startTime = System.nanoTime();
         for (int i = 0; i < w_coeff.size(); i++) {
             for (int j = 0; j < w_coeff.get(i).size(); j++) {
                 w_coeff.get(i).set(j, Math.cos((4 * Math.PI / N) * i * j) + Math.sin((4 * Math.PI / N) * i * j));
@@ -59,9 +66,12 @@ public class Lab4 {
         for (int i = 0; i < w_coeff_new.size(); i++) {
             w_coeff_new.set(i, Math.cos((2 * Math.PI / N) * i) + Math.sin((2 * Math.PI / 4) * i));
         }
+        long endTime = System.nanoTime();
+        time+= endTime - startTime;
     }
 
     public static List<Double> createF() {
+        long startTime = System.nanoTime();
         for (int i = 0; i < N/2; i++) {
             for (int j = 0; j < N/2; j++) {
                 fII.set(i, fII.get(i) + signal.get(2*j) * w_coeff.get(i).get(j));
@@ -76,6 +86,8 @@ public class Lab4 {
                 f.set(i, f.get(i) + fII.get(i-(N/2)) + w_coeff_new.get(i) * fI.get(i-(N/2)));
             }
         });
+        long endTime = System.nanoTime();
+        time+= endTime - startTime;
         return f;
     }
 
